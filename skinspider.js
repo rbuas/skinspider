@@ -9,7 +9,15 @@ function SkinSpider (options) {
     var self = this;
     self.options = Object.assign({}, self.DEFAULTOPTIONS, options);
     self.resetcache();
+    registerHelpers(self);
 }
+
+SkinSpider.ERROR = {
+    MISSING_PARAMS : "Missing function parameters",
+    NOTEMPLATE : "Can not found the template",
+    TEMPLATE_COMPILATION : "Template compilation error",
+    RENDER : "Error during the render"
+};
 
 SkinSpider.prototype.DEFAULTOPTIONS = {
     path : "views",
@@ -18,28 +26,55 @@ SkinSpider.prototype.DEFAULTOPTIONS = {
 
 SkinSpider.prototype.resetcache = function () {
     var self = this;
-    self.views = {};
+    self.skins = {};
 }
 
-SkinSpider.prototype.render = function(template, data, force) {
+SkinSpider.prototype.render = function(template, data, forceload) {
     var self = this;
-    if(!template)
-        return;
-
-    var templateCompiled = self.views && self.views[template];
-    if(force || !templateCompiled) {
-        var templateFile = path.join(self.options.path, template) + "." + self.options.ext;
-        if(!jsext.fileExists(templateFile)) return "NOTEMPLATE";
-
-        var templateRaw = fs.readFileSync(templateFile, 'utf8');
-        templateCompiled = self.views[template] = handlebars.compile(templateRaw);
-        if(!templateCompiled) return "TEMPLATEERROR";
-    }
+    var skin = self.skin(template, forceload);
+    if(skin.error || !skin.bin) return skin;
 
     try {
-        var html = templateCompiled(data);
+        var html = skin.bin(data);
+        return {html:html};
     } catch(e) {
-        return;
+        return {error:SkinSpider.ERROR.RENDER};
     }
-    return html;
+}
+
+SkinSpider.prototype.skin = function(template, forceload) {
+    var self = this;
+    if(!template) return {error:SkinSpider.ERROR.MISSING_PARAMS};
+
+    var skin = !forceload && self.skins && self.skins[template] ? self.skins[template] : self.load(template);
+    return skin;
+}
+
+SkinSpider.prototype.load = function(template) {
+    var self = this;
+    if(!template) return {error:SkinSpider.ERROR.MISSING_PARAMS};
+
+    var templatePath = self.options.path || "";
+    var ext = self.options.ext && "." + self.options.ext || "";
+    var templatefile = path.join(templatePath, template) + ext;
+    if(!jsext.fileExists(templatefile)) return {error:SkinSpider.ERROR.NOTEMPLATE, template:template, ext:self.options.ext};
+
+    var templateContent = fs.readFileSync(templatefile, 'utf8');
+    var skin = handlebars.compile(templateContent);
+    if(!skin) return {error:SkinSpider.ERROR.TEMPLATE_COMPILATION};
+
+    self.skins[template] = skin;
+    return {bin:skin};
+}
+
+
+
+// PRIVATE
+
+function registerHelpers (self) {
+    handlebars.registerHelper("skin", function(options, context) {
+        var skin = options && options.hash && options.hash["skin"] || null;
+        var rendered = self.render(skin, context);
+        return new handlebars.SafeString(rendered && rendered.html || rendered.error || ":(");
+    });
 }
