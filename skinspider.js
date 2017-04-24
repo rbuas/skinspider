@@ -63,8 +63,8 @@ SkinSpider.prototype.load = function(template) {
     var skin = handlebars.compile(templateContent);
     if(!skin) return {error:SkinSpider.ERROR.TEMPLATE_COMPILATION};
 
-    self.skins[template] = skin;
-    return {bin:skin};
+    self.skins[template] = {bin:skin};
+    return self.skins[template];
 }
 
 
