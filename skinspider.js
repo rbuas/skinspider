@@ -8,7 +8,7 @@ var jsext = require("jsext");
 function SkinSpider (options) {
     var self = this;
     self.options = Object.assign({}, self.DEFAULTOPTIONS, options);
-    self.resetcache();
+    self.reset();
     registerHelpers(self);
 }
 
@@ -24,7 +24,7 @@ SkinSpider.prototype.DEFAULTOPTIONS = {
     ext : "html"
 };
 
-SkinSpider.prototype.resetcache = function () {
+SkinSpider.prototype.reset = function () {
     var self = this;
     self.skins = {};
 }
