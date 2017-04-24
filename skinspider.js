@@ -72,9 +72,11 @@ SkinSpider.prototype.load = function(template) {
 // PRIVATE
 
 function registerHelpers (self) {
-    handlebars.registerHelper("skin", function(options, context) {
-        var skin = options && options.hash && options.hash["skin"] || null;
+    handlebars.registerHelper("skin", function(skin, context) {
         var rendered = self.render(skin, context);
-        return new handlebars.SafeString(rendered && rendered.html || rendered.error || ":(");
+        var content = rendered && rendered.html;
+        if(!content)
+            content = rendered.error && rendered.error + " (" + (rendered.template || "") + ")"
+        return new handlebars.SafeString(content);
     });
 }
