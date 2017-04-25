@@ -79,4 +79,18 @@ function registerHelpers (self) {
             content = rendered.error && rendered.error + " (" + (rendered.template || "") + ")"
         return new handlebars.SafeString(content);
     });
+
+    if(self.options.helpers) {
+        Object.keys(self.options.helpers).forEach(function(helperKey) {
+            handlebars.registerHelper(helperKey, function() {
+                var helper = self.options.helpers[helperKey];
+                if(!helper) return;
+
+                var content = helper.apply(null, arguments);
+                if(!content) return;
+
+                return new handlebars.SafeString(content);
+            })
+        });
+    }
 }
