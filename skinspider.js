@@ -38,7 +38,7 @@ SkinSpider.prototype.render = function(template, data, forceload) {
         var html = skin.bin(data);
         return {html:html};
     } catch(e) {
-        return {error:SkinSpider.ERROR.RENDER};
+        return {error:SkinSpider.ERROR.RENDER, internalerror:e && e.toString()};
     }
 }
 
@@ -73,10 +73,13 @@ SkinSpider.prototype.load = function(template) {
 
 function registerHelpers (self) {
     handlebars.registerHelper("skin", function(skin, context) {
+        context = assertContext(context);
         var rendered = self.render(skin, context);
+        var error = rendered && rendered.error;
         var content = rendered && rendered.html;
-        if(!content)
-            content = rendered.error && rendered.error + " (" + (rendered.template || "") + ")"
+        if(content == undefined || error)
+            content = error && error + " (" + (skin || "") + ")" || "ERROR(" + skin + ")" || "ERROR(" + skin + ")";
+
         return new handlebars.SafeString(content);
     });
 
@@ -93,4 +96,10 @@ function registerHelpers (self) {
             })
         });
     }
+}
+
+function assertContext (context) {
+    if(!context) return;
+
+    return context && context.data && context.data.root || context;
 }

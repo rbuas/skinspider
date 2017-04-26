@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "handlebars": "^4.0.5",
-    "jsext": "^1.0.0"
+    "jsext": "^1.0.5"
   },
   "devDependencies": {
     "express": "^4.13.4",
