@@ -38,15 +38,15 @@ SkinSpider.prototype.reset = function () {
     self.skins = {};
 }
 
-SkinSpider.prototype.render = function(template, data, forceload) {
+SkinSpider.prototype.render = function(template, data, forceload, ignorecompression) {
     var self = this;
     var skin = self.skin(template, forceload);
     if(skin.error || !skin.bin) return skin;
 
     try {
         var html = skin.bin(data);
-        var minifiedhtml = htmlminify(html, self.options.compression);
-        return {html:minifiedhtml};
+        var htmlout = ignorecompression && htmlminify(html, self.options.compression) || html;
+        return {html:htmlout};
     } catch(e) {
         return {error:SkinSpider.ERROR.RENDER, internalerror:e && e.toString()};
     }
@@ -84,7 +84,9 @@ SkinSpider.prototype.load = function(template) {
 function registerHelpers (self) {
     handlebars.registerHelper("skin", function(skin, context) {
         context = assertContext(context);
-        var rendered = self.render(skin, context);
+        var forceload = false;
+        var ignorecompression = true;
+        var rendered = self.render(skin, context, forceload, ignorecompression);
         var error = rendered && rendered.error;
         var content = rendered && rendered.html;
         if(content == undefined || error)
