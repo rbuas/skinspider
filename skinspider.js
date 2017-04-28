@@ -1,8 +1,9 @@
 module.exports = SkinSpider;
 
-var handlebars = require("handlebars");
 var fs = require("fs");
 var path = require("path");
+var handlebars = require("handlebars");
+var htmlminify = require("html-minifier").minify;
 var jsext = require("jsext");
 
 function SkinSpider (options) {
@@ -21,7 +22,15 @@ SkinSpider.ERROR = {
 
 SkinSpider.prototype.DEFAULTOPTIONS = {
     path : "views",
-    ext : "html"
+    ext : "html",
+    htmlcompression : {
+        removeComments:            true,
+        collapseWhitespace:        true,
+        collapseBooleanAttributes: true,
+        removeAttributeQuotes:     true,
+        removeEmptyAttributes:     true,
+        minifyJS:                  true
+    }
 };
 
 SkinSpider.prototype.reset = function () {
@@ -36,7 +45,8 @@ SkinSpider.prototype.render = function(template, data, forceload) {
 
     try {
         var html = skin.bin(data);
-        return {html:html};
+        var minifiedhtml = htmlminify(html, self.options.compression);
+        return {html:minifiedhtml};
     } catch(e) {
         return {error:SkinSpider.ERROR.RENDER, internalerror:e && e.toString()};
     }
