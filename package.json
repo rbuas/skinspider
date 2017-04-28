@@ -1,6 +1,6 @@
 {
   "name": "skinspider",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "An abstraction to render templates.",
   "author": "rbuas <rodrigobuas@gmail.com>",
   "keywords": [
