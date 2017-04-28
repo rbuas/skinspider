@@ -45,7 +45,7 @@ SkinSpider.prototype.render = function(template, data, forceload, ignorecompress
 
     try {
         var html = skin.bin(data);
-        var htmlout = ignorecompression && htmlminify(html, self.options.compression) || html;
+        var htmlout = !ignorecompression && htmlminify(html, self.options.compression) || html;
         return {html:htmlout};
     } catch(e) {
         return {error:SkinSpider.ERROR.RENDER, internalerror:e && e.toString()};
