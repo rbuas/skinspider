@@ -18,7 +18,7 @@
   "dependencies": {
     "handlebars": "^4.0.5",
     "html-minifier": "^3.4.3",
-    "jsext": "^1.0.5"
+    "jsext": "^1.0.6"
   },
   "devDependencies": {
     "express": "^4.13.4",
