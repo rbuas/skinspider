@@ -23,7 +23,8 @@ SkinSpider.ERROR = {
 SkinSpider.prototype.DEFAULTOPTIONS = {
     path : "views",
     ext : "html",
-    htmlcompression : {
+    compression : {
+        caseSensitive:             true,
         removeComments:            true,
         collapseWhitespace:        true,
         collapseBooleanAttributes: true,
